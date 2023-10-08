@@ -4,49 +4,51 @@
 
 package frc.robot.commands;
 
-import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.Encoder;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.DriveTrain;
 
-//creates TankDrive class  
-public class TankDrive extends CommandBase {
-  public DriveTrain dt;
-  public Joystick joy;
 
-  /** Creates a new TankDrive. */
-  public TankDrive(DriveTrain dt, Joystick j) {
-    this.dt = dt;
-    this.joy = j;
+public class EncoderDrive extends CommandBase {
 
+  DriveTrain dt;
+  double setpoint;
+  //do we need to initialize the setpoint if it's created in robot container??
+
+  /** Creates a new encoderDrive. */
+  public EncoderDrive(DriveTrain dt, double setpoint) {
     // Use addRequirements() here to declare subsystem dependencies.
-    addRequirements(dt);
+    this.dt = dt;
+    this.setpoint = setpoint;
+    dt.addRequirements();
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    dt.tankDrive(0.0, 0.0);
+    dt.resetEncoders();
+    dt.tankDrive(0, 0);
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    double leftPowerRaw = joy.getRawAxis(1);
+    // diameter of the wheel * pi / ticks
+    dt.tankDrive(0.3, 0.3);
+    SmartDashboard.putNumber("meters", dt.ticksToMeters());
 
-    double rightPowerRaw = joy.getRawAxis(5);
-
-    dt.tankDrive(leftPowerRaw*-0.7, rightPowerRaw*-0.7);
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    dt.tankDrive(0.0, 0.0);
+    dt.tankDrive(0, 0);
   }
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return false;
+    return dt.ticksToMeters() >= setPoint;
   }
 }

@@ -11,6 +11,9 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
+import frc.robot.commands.EncoderDrive;
+import frc.robot.commands.DriveTrain;
+
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
  * "declarative" paradigm, very little robot logic should actually be handled in the {@link Robot}
@@ -19,7 +22,6 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
  */
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
-
   
   // Replace with CommandPS4Controller or CommandJoystick if needed
   private final Joystick joy1 = new Joystick(Constants.USBOrder.Zero);
@@ -28,8 +30,12 @@ public class RobotContainer {
 
   private final TankDrive tankDrive = new TankDrive(dt, joy1);
 
+  // create encoderdrive object
+  private final EncoderDrive eDrive = new EncoderDrive(dt, 1.0);
+
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
+
     dt.setDefaultCommand(tankDrive);
     // Configure the trigger bindings
     configureBindings();
@@ -55,6 +61,6 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     // An example command will be run in autonomous
-    return null;
+    return eDrive;
   }
 }

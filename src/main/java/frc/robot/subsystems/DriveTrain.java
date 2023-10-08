@@ -10,6 +10,8 @@ import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
+import edu.wpi.first.hal.FRCNetComm.tResourceType;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -20,6 +22,7 @@ import frc.robot.Constants;
 
 import com.kauailabs.navx.frc.AHRS;
 
+// creating DriveTrain class which inherits attributes from premade SubsystemBase class
 public class DriveTrain extends SubsystemBase 
 {
   private final WPI_TalonSRX leftDriveTalon;
@@ -34,14 +37,15 @@ public class DriveTrain extends SubsystemBase
   /** Creates a new DriveTrain */
   public DriveTrain() 
   {
+    //creating objects for talons and setting parameters
     leftDriveTalon = new WPI_TalonSRX(Constants.DriveTrainPorts.LeftDriveTalonPort);
     rightDriveTalon = new WPI_TalonSRX(Constants.DriveTrainPorts.RightDriveTalonPort);
   
     leftDriveTalon.setNeutralMode(NeutralMode.Coast);
     rightDriveTalon.setNeutralMode(NeutralMode.Coast);
 
-    leftDriveTalon.setInverted(true);
-    rightDriveTalon.setInverted(false);
+    leftDriveTalon.setInverted(false);
+    rightDriveTalon.setInverted(true);
 
     leftDriveTalon.setSensorPhase(true);
     rightDriveTalon.setSensorPhase(true);
@@ -53,11 +57,13 @@ public class DriveTrain extends SubsystemBase
 
   }
 
+  // creating method with speed parameters (actually motor power)
   public void tankDrive(double leftSpeed, double rightSpeed) {
     rightDriveTalon.set(rightSpeed);
     leftDriveTalon.set(leftSpeed);
   }
 
+  //encoders measure rotational motion, sets starting position
   public void resetEncoders() {
     leftDriveTalon.setSelectedSensorPosition(0,0,10);
     rightDriveTalon.setSelectedSensorPosition(0,0,10);
@@ -67,14 +73,21 @@ public class DriveTrain extends SubsystemBase
     return (leftDriveTalon.getSelectedSensorPosition(0) + rightDriveTalon.getSelectedSensorPosition(0)) / 2.0;
   }
  
+  public double ticksToMeters(){
+    return((Units.inchesToMeters(6) * Math.PI) / 4096 * getTicks());
+  }
+  
+  //gets angle, used to display on smartdashboard
   public double getAngle(){
     return navx.getAngle(); 
   }
  
+  //resets navx measurement when code first runs
   public void resetNavx(){
     navx.reset();
   }
 
+  //displays stats on smart dashboard and shuffleboard
   @Override
   public void periodic() {
     SmartDashboard.putNumber("Left Voltage", leftDriveTalon.getMotorOutputPercent());
