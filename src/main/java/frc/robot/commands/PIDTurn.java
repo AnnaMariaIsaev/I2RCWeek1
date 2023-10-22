@@ -4,39 +4,54 @@
 
 package frc.robot.commands;
 
-import edu.wpi.first.wpilibj.Encoder;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.Constants.KPConstants;
 import frc.robot.subsystems.DriveTrain;
 
-
-public class EncoderDrive extends CommandBase {
-
+public class PIDTurn extends CommandBase {
+  /** Creates a new PIDTurn. */
   DriveTrain dt;
-  double setpoint;
-  //do we need to initialize the setpoint if it's created in robot container??
+  double setpointAngle;
+  int motorSign;
 
-  /** Creates a new encoderDrive. */
-  public EncoderDrive(DriveTrain dt, double setpoint) {
+  /*to find the P constant motor power / error
+  motor power is setpoint from 0 */
+
+  PIDController PID = new PIDController(KPConstants.kP, 0, 0);
+
+  public PIDTurn(DriveTrain dt, double setpointAngle) {
     // Use addRequirements() here to declare subsystem dependencies.
     this.dt = dt;
-    this.setpoint = setpoint;
+    this.setpointAngle = setpointAngle;
+
     addRequirements(dt);
+
+    //setting tolerance
+    PID.setTolerance(KPConstants.positionTolerance);
+
+    //counterclockwise turn
+  if(setpointAngle >= 0){
+    motorSign = 1;
+  } else {
+    //clockwise
+    motorSign = -1;
+  }
+
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    dt.resetEncoders();
+    dt.resetNavx();
     dt.tankDrive(0, 0);
+    
   }
-
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    // diameter of the wheel * pi / ticks
-    dt.tankDrive(0.3, 0.3);
-    SmartDashboard.putNumber("meters", dt.ticksToMeters());
+    double output = PID.calculate(dt.getAngle(), setpointAngle);
+    dt.tankDrive(-motorSign*output, motorSign*output);
 
   }
 
@@ -49,6 +64,6 @@ public class EncoderDrive extends CommandBase {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return dt.ticksToMeters() >= setpoint;
+    return PID.atSetpoint();
   }
 }

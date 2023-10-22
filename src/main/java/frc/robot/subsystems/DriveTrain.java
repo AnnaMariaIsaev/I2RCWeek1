@@ -79,7 +79,7 @@ public class DriveTrain extends SubsystemBase
   
   //gets angle, used to display on smartdashboard
   public double getAngle(){
-    return navx.getAngle(); 
+    return -navx.getAngle(); 
   }
  
   //resets navx measurement when code first runs

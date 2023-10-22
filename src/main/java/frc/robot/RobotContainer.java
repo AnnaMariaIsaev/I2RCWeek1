@@ -8,11 +8,9 @@ import frc.robot.commands.*;
 import frc.robot.subsystems.*;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-
-import frc.robot.commands.EncoderDrive;
-import frc.robot.commands.DriveTrain;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -32,6 +30,8 @@ public class RobotContainer {
 
   // create encoderdrive object
   private final EncoderDrive eDrive = new EncoderDrive(dt, 1.0);
+
+  private final PIDTurn pidTurn = new PIDTurn(dt, 90.0);
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -61,6 +61,14 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     // An example command will be run in autonomous
-    return eDrive;
+    return new SequentialCommandGroup(
+      new EncoderDrive(dt, 1.0),
+      new PIDTurn(dt, 90.0),
+      new EncoderDrive(dt, 1.0),
+      new PIDTurn(dt, 90.0),
+      new EncoderDrive(dt, 1.0),
+      new PIDTurn(dt, 90.0),
+      new EncoderDrive(dt, 1.0)
+    );
   }
 }
